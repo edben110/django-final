@@ -178,13 +178,13 @@
         <a href="{% url 'login' %}" class="back-link">‹ Back</a>
 
         <div class="logo">🔬</div>
-        <h1>Bienvenido de vuelta!</h1>
+        <h1>Iniciar sesión</h1>
         <p class="subtitle">
             ¿Primera vez? <a href="{% url 'register' %}">Regístrate gratis</a>
         </p>
 
-        {% if form.errors %}
-            <div class="error-msg">Credenciales incorrectas. Intenta de nuevo.</div>
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
         {% endif %}
 
         <form method="post">

@@ -148,7 +148,7 @@
             {% csrf_token %}
             {% for field in form %}
                 <div class="form-group">
-                    <input type="{% if 'password' in field.name %}password{% else %}text{% endif %}"
+                    <input type="{% if 'password' in field.name %}password{% elif 'email' in field.name %}email{% else %}text{% endif %}"
                            name="{{ field.name }}"
                            placeholder="{{ field.label }}"
                            {% if forloop.first %}autofocus{% endif %}

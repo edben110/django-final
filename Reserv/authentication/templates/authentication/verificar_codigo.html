@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación 2FA - Reservas Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #111111;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .verify-card {
+            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            overflow: hidden;
+        }
+        .verify-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Indicador de pasos */
+        .steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .step.completed .step-dot {
+            background: #22c55e;
+        }
+        .step.active .step-dot {
+            background: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .step-line {
+            width: 24px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Ícono escudo */
+        .shield-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 14px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.88rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .subtitle strong {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Inputs de código */
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .code-inputs input {
+            width: 48px;
+            height: 56px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+            font-family: 'Inter', monospace;
+            transition: border-color 0.3s;
+        }
+        .code-inputs input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .code-inputs input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 1rem;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.2s, background 0.2s;
+        }
+        .btn-verify:hover:not(:disabled) {
+            background: #2563eb;
+        }
+        .btn-verify:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .resend-section {
+            text-align: center;
+            margin-top: 1.2rem;
+        }
+        .btn-resend {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .btn-resend:hover:not(:disabled) {
+            color: #fff;
+        }
+        .btn-resend:disabled {
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+
+        .note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.25);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-card">
+        <!-- Indicador de pasos -->
+        <div class="steps">
+            <div class="step completed">
+                <span class="step-dot"></span>
+                <span>Credenciales</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <span class="step-dot"></span>
+                <span>Verificación</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <span class="step-dot"></span>
+                <span>Acceso</span>
+            </div>
+        </div>
+
+        <!-- Ícono escudo -->
+        <div class="shield-icon">🛡️</div>
+
+        <h1>Verificación de identidad</h1>
+        <p class="subtitle">
+            Enviamos un código de 6 dígitos a<br>
+            <strong>{{ email_mascarado }}</strong>
+        </p>
+
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" id="verify-form">
+            {% csrf_token %}
+            <input type="hidden" name="codigo" id="codigo-hidden">
+
+            <div class="code-inputs">
+                <input type="text" inputmode="numeric" maxlength="1" id="d0" placeholder="·" autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d1" placeholder="·" autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d2" placeholder="·" autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d3" placeholder="·" autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d4" placeholder="·" autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d5" placeholder="·" autocomplete="off">
+            </div>
+
+            <button type="submit" class="btn-verify" id="btn-verify" disabled>
+                Verificar acceso
+            </button>
+        </form>
+
+        <div class="resend-section">
+            <a href="{% url 'reenviar_codigo' %}" id="btn-resend" class="btn-resend" style="pointer-events:none;">
+                Reenviar código (<span id="countdown">30</span>s)
+            </a>
+        </div>
+
+        <p class="note">
+            El código expira en 10 minutos y es de un solo uso.
+        </p>
+    </div>
+
+    <script>
+        (function() {
+            const inputs = document.querySelectorAll('.code-inputs input');
+            const hiddenInput = document.getElementById('codigo-hidden');
+            const btnVerify = document.getElementById('btn-verify');
+            const btnResend = document.getElementById('btn-resend');
+            const countdownEl = document.getElementById('countdown');
+
+            // Auto-focus first input
+            inputs[0].focus();
+
+            function updateHidden() {
+                let code = '';
+                inputs.forEach(inp => { code += inp.value; });
+                hiddenInput.value = code;
+                btnVerify.disabled = code.length < 6;
+            }
+
+            inputs.forEach((input, idx) => {
+                input.addEventListener('input', function(e) {
+                    // Solo permitir dígitos
+                    this.value = this.value.replace(/\D/g, '').slice(0, 1);
+                    if (this.value && idx < inputs.length - 1) {
+                        inputs[idx + 1].focus();
+                    }
+                    updateHidden();
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && idx > 0) {
+                        inputs[idx - 1].focus();
+                        inputs[idx - 1].value = '';
+                        updateHidden();
+                    }
+                });
+
+                // Soporte para pegar código completo
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pasted = (e.clipboardData || window.clipboardData)
+                        .getData('text').replace(/\D/g, '').slice(0, 6);
+                    for (let i = 0; i < pasted.length && i < inputs.length; i++) {
+                        inputs[i].value = pasted[i];
+                    }
+                    if (pasted.length > 0) {
+                        const focusIdx = Math.min(pasted.length, inputs.length - 1);
+                        inputs[focusIdx].focus();
+                    }
+                    updateHidden();
+                });
+            });
+
+            // Countdown para reenviar
+            let seconds = 30;
+            const timer = setInterval(function() {
+                seconds--;
+                countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    btnResend.style.pointerEvents = 'auto';
+                    btnResend.textContent = 'Reenviar código';
+                }
+            }, 1000);
+        })();
+    </script>
+</body>
+</html>
