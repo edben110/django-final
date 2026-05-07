@@ -40,11 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
+    'reservas',
 ]
 
 # Authentication
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'reserva_list'
+LOGIN_REDIRECT_URL = 'reservas:lista'
 LOGOUT_REDIRECT_URL = 'login'
 
 MIDDLEWARE = [
