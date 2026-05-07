@@ -11,8 +11,19 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+from importlib.util import find_spec
 from pathlib import Path
-from decouple import config
+
+try:
+    from decouple import config
+except ImportError:
+    def config(key, default=None, cast=None):
+        value = os.getenv(key, default)
+        if cast is bool:
+            return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
+        if cast is not None and value is not None:
+            return cast(value)
+        return value
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,7 +61,6 @@ LOGOUT_REDIRECT_URL = 'login'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,6 +68,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if find_spec('whitenoise') is not None:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'Reserv.urls'
 
@@ -128,8 +141,9 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Use WhiteNoise to serve static files in production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if find_spec('whitenoise') is not None:
+    # Use WhiteNoise to serve static files in production
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
