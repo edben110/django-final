@@ -1,1 +1,2 @@
-web: gunicorn Reserv.wsgi --chdir Reserv --bind 0.0.0.0:$PORT --workers 3
+release: python Reserv/manage.py migrate --noinput
+web: gunicorn Reserv.wsgi:application --chdir Reserv --bind 0.0.0.0:$PORT --workers 3
