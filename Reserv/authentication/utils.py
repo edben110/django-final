@@ -9,6 +9,12 @@ def enviar_codigo_verificacion(usuario, codigo):
         'codigo': codigo,
         'expiracion': '10 minutos',
     }
+
+    # Si el usuario no tiene email, solo imprimir en consola
+    if not usuario.email:
+        print(f'[AUTH] Código de verificación para {usuario.username}: {codigo}')
+        return
+
     html_contenido = render_to_string(
         'emails/codigo_verificacion.html', contexto
     )

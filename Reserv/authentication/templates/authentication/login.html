@@ -3,209 +3,892 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Reservas Lab</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>BioLab Auth - Iniciar Sesion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ============================================
+           CSS VARIABLES - BioLab Design System
+        ============================================ */
+        :root {
+            --primary: #4B3DFF;
+            --primary-light: #6D6BFF;
+            --primary-dark: #3A2FCC;
+            --accent-red: #FF6A5B;
+            --accent-orange: #FF8A6B;
+            --bg-white: #F6F6F8;
+            --card-gray: #EFEFF2;
+            --text-dark: #1A1A2E;
+            --text-muted: #7B7B8E;
+            --text-light: #A8A8B8;
+            --white: #FFFFFF;
+            --shadow-primary: 0 20px 60px rgba(75, 61, 255, 0.18);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 12px 40px rgba(75, 61, 255, 0.25);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 40px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ============================================
+           RESET & BASE
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: #111111;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-white);
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ============================================
+           FLOATING BACKGROUND ELEMENTS
+        ============================================ */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-blob--blue {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            top: -200px;
+            right: -150px;
+            animation: floatBlob 8s ease-in-out infinite;
+        }
+
+        .bg-blob--red {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            bottom: -100px;
+            left: -50px;
+            animation: floatBlob 6s ease-in-out infinite reverse;
+        }
+
+        .bg-blob--purple {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-light), #9B8FFF);
+            top: 50%;
+            left: 10%;
+            animation: floatBlob 10s ease-in-out infinite;
+        }
+
+        @keyframes floatBlob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* ============================================
+           FLOATING 3D LABORATORY OBJECTS
+        ============================================ */
+        .floating-object {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatObject 6s ease-in-out infinite;
+        }
+
+        .floating-object--microscope {
+            top: 15%;
+            right: 8%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 0s;
+        }
+
+        .floating-object--flask {
+            bottom: 20%;
+            right: 15%;
+            width: 60px;
+            height: 60px;
+            animation-delay: -2s;
+        }
+
+        .floating-object--cell {
+            top: 60%;
+            left: 5%;
+            width: 50px;
+            height: 50px;
+            animation-delay: -4s;
+        }
+
+        .floating-object--capsule {
+            top: 25%;
+            left: 12%;
+            width: 45px;
+            height: 45px;
+            animation-delay: -1s;
+        }
+
+        .floating-object--tube {
+            bottom: 30%;
+            left: 20%;
+            width: 40px;
+            height: 40px;
+            animation-delay: -3s;
+        }
+
+        /* CSS 3D Lab Objects */
+        .lab-microscope {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            box-shadow: var(--shadow-primary);
+            font-size: 2rem;
+            transform: rotate(-10deg);
         }
-        .login-card {
-            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+
+        .lab-flask {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            border-radius: 50% 50% 16px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 30px rgba(255, 106, 91, 0.3);
+            font-size: 1.5rem;
+            transform: rotate(15deg);
+        }
+
+        .lab-cell {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-red), #FF4040);
+            border-radius: 50%;
+            opacity: 0.7;
+            box-shadow: 0 8px 20px rgba(255, 106, 91, 0.25);
+            position: relative;
+        }
+
+        .lab-cell::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+        }
+
+        .lab-capsule {
+            width: 45px;
+            height: 22px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
             border-radius: 20px;
+            box-shadow: var(--shadow-primary);
+            transform: rotate(30deg);
+        }
+
+        .lab-tube {
+            width: 16px;
+            height: 50px;
+            background: linear-gradient(180deg, var(--primary-light), transparent);
+            border-radius: 8px 8px 4px 4px;
+            border: 2px solid var(--primary);
+            transform: rotate(-20deg);
+        }
+
+        @keyframes floatObject {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        /* ============================================
+           MAIN LAYOUT - CSS GRID
+        ============================================ */
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr minmax(420px, 500px) 1fr;
+            min-height: 100vh;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ============================================
+           LEFT SIDEBAR PANEL
+        ============================================ */
+        .sidebar-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+            padding-right: 2rem;
+        }
+
+        .sidebar-pill {
+            width: 48px;
+            height: 48px;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .sidebar-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            color: var(--primary);
+        }
+
+        .sidebar-pill--active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            box-shadow: var(--shadow-primary);
+        }
+
+        /* ============================================
+           AUTH CARD - MAIN FORM
+        ============================================ */
+        .auth-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
             padding: 3.5rem 3rem;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: visible;
+            transition: var(--transition);
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Decorative accent bar */
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 3rem;
+            right: 3rem;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-red));
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* Floating decorative element */
+        .auth-card__decor {
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            border-radius: 24px;
+            transform: rotate(15deg);
+            opacity: 0.8;
+            box-shadow: 0 12px 30px rgba(255, 106, 91, 0.3);
+            animation: floatObject 5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        /* ============================================
+           BRANDING
+        ============================================ */
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-brand__icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .auth-brand__text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: -0.3px;
+        }
+
+        .auth-brand__text span {
+            color: var(--primary);
+        }
+
+        /* ============================================
+           HEADINGS
+        ============================================ */
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .auth-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin-bottom: 2.2rem;
+            line-height: 1.5;
+        }
+
+        .auth-subtitle a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .auth-subtitle a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           FORM STYLES
+        ============================================ */
+        .form-group {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
             width: 100%;
-            max-width: 480px;
+            padding: 1rem 1.25rem;
+            background: var(--card-gray);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(75, 61, 255, 0.08), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .form-input:hover {
+            background: #E8E8EC;
+        }
+
+        /* ============================================
+           FORM EXTRAS
+        ============================================ */
+        .form-extras {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .form-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-checkbox label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .form-forgot {
+            font-size: 0.82rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .form-forgot:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           BUTTONS
+        ============================================ */
+        .btn-primary {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-primary);
+            letter-spacing: 0.3px;
             position: relative;
             overflow: hidden;
         }
-        /* Reflejo sutil en la esquina */
-        .login-card::before {
+
+        .btn-primary::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -50%;
+            top: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
-            pointer-events: none;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 0.85rem;
-            margin-bottom: 2.5rem;
-            transition: color 0.2s;
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
-        .back-link:hover { color: #fff; }
-        .logo {
-            width: 48px;
-            height: 48px;
-            background: #222;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            margin: 0 auto 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
-        h1 {
-            color: #ffffff;
-            text-align: center;
-            font-size: 1.55rem;
-            font-weight: 600;
-            margin-bottom: 0.6rem;
-            letter-spacing: -0.3px;
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
-        .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.35);
-            font-size: 0.9rem;
-            margin-bottom: 2.5rem;
-        }
-        .subtitle a {
-            color: #fff;
-            text-decoration: underline;
-            font-weight: 600;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 1rem 1.1rem;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s;
-        }
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        .btn-signin {
-            width: 100%;
-            padding: 1rem;
-            background: #ffffff;
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            margin-top: 1.2rem;
-            transition: opacity 0.2s;
-        }
-        .btn-signin:hover {
-            opacity: 0.9;
-        }
-        .divider {
+
+        /* ============================================
+           DIVIDER
+        ============================================ */
+        .auth-divider {
             display: flex;
             align-items: center;
             margin: 1.5rem 0;
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 0.8rem;
+            gap: 1rem;
         }
-        .divider::before, .divider::after {
+
+        .auth-divider::before,
+        .auth-divider::after {
             content: '';
             flex: 1;
             height: 1px;
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--card-gray);
         }
-        .divider span { padding: 0 1rem; }
-        .btn-secondary-action {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            background: transparent;
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            font-size: 0.9rem;
+
+        .auth-divider span {
+            font-size: 0.78rem;
+            color: var(--text-light);
             font-weight: 500;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: border-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .btn-secondary-action:hover {
-            border-color: rgba(255, 255, 255, 0.3);
+
+        /* ============================================
+           SOCIAL BUTTONS
+        ============================================ */
+        .social-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
         }
-        .error-msg {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1rem;
+            background: var(--card-gray);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
             font-size: 0.85rem;
-            margin-bottom: 1.2rem;
-            text-align: center;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
         }
-        .footer-text {
+
+        .btn-social:hover {
+            border-color: var(--primary);
+            background: var(--white);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ============================================
+           ERROR MESSAGES
+        ============================================ */
+        .error-msg {
+            background: rgba(255, 106, 91, 0.08);
+            border: 1px solid rgba(255, 106, 91, 0.2);
+            color: var(--accent-red);
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ============================================
+           RIGHT PANEL - STATS
+        ============================================ */
+        .sidebar-right {
+            padding-left: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card--primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+        .stat-card__number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .stat-card__label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card--small {
+            padding: 1rem 1.25rem;
+        }
+
+        .stat-card--small .stat-card__number {
+            font-size: 1.2rem;
+        }
+
+        /* ============================================
+           FOOTER
+        ============================================ */
+        .auth-footer {
             text-align: center;
             margin-top: 2rem;
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.2);
-            line-height: 1.5;
+            color: var(--text-light);
         }
-        .footer-text a {
-            color: rgba(255, 255, 255, 0.35);
-            text-decoration: underline;
+
+        .auth-footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .auth-footer a:hover {
+            color: var(--primary);
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 1200px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+            .sidebar-left, .sidebar-right {
+                display: none;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .auth-card {
+                padding: 2.5rem 1.75rem;
+                border-radius: var(--radius-lg);
+            }
+            .auth-title {
+                font-size: 1.6rem;
+            }
+            .social-buttons {
+                grid-template-columns: 1fr;
+            }
+            .auth-card__decor {
+                display: none;
+            }
+        }
+
+        /* ============================================
+           ANIMATIONS ON LOAD
+        ============================================ */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .auth-card {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .sidebar-left, .sidebar-right {
+            animation: fadeIn 0.8s ease 0.3s forwards;
+            opacity: 0;
         }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <a href="{% url 'login' %}" class="back-link">‹ Back</a>
+    <!-- Background Blobs -->
+    <div class="bg-blob bg-blob--blue"></div>
+    <div class="bg-blob bg-blob--red"></div>
+    <div class="bg-blob bg-blob--purple"></div>
 
-        <div class="logo">🔬</div>
-        <h1>Iniciar sesión</h1>
-        <p class="subtitle">
-            ¿Primera vez? <a href="{% url 'register' %}">Regístrate gratis</a>
-        </p>
-
-        {% if error %}
-            <div class="error-msg">{{ error }}</div>
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <input type="text" name="username" placeholder="Tu usuario" required autofocus>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn-signin">Sign in</button>
-        </form>
-
-        <div class="divider"><span>o</span></div>
-
-        <a href="{% url 'register' %}" class="btn-secondary-action">Crear cuenta nueva</a>
-
-        <p class="footer-text">
-            Sistema de Reservas de Laboratorios<br>
-            <a href="#">Términos de uso</a> y <a href="#">Política de privacidad</a>
-        </p>
+    <!-- Floating Laboratory Objects -->
+    <div class="floating-object floating-object--microscope">
+        <div class="lab-microscope">
+            <svg width="40" height="40" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><path d="M22.773 15.418v12.124a1.643 1.643 0 0 1-1.627 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418h-3.17v12.124c0 .916-.723 1.659-1.629 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418H9.991v15.763h15.788V15.418h-3.005z"/><path d="M55.428.423H8.643C4.058.423.329 4.153.329 8.738V55.52c0 4.586 3.73 8.315 8.314 8.315h46.785c4.584 0 8.314-3.729 8.314-8.315V8.738c0-4.585-3.729-8.315-8.314-8.315zM8.381 32.788V13.811h4.655v-3.788h-.501l-.008-.908h4.252l.005.908h-.464v3.788h3.17v-3.788h-.501l-.006-.908h4.249l.007.908h-.466v3.788h4.613v18.977H8.381zm17.428 5.185l11.628 6.717l-1.15 1.994l-11.631-6.717l1.153-1.994zM54.698 55.28H26.104v-4.772h10.158c6.95 0 12.607-5.654 12.607-12.604c0-4.394-2.281-8.364-5.835-10.63l-5.797 10.04l-1.203-.695l-1.71 2.959l-3.029-1.749l1.71-2.957l-1.204-.695l13.786-23.881l.927.535l1.387-2.401l3.626 2.094l-1.383 2.405l.881.508l-5.608 9.707c5.006 3.105 8.225 8.633 8.225 14.762c0 4.975-2.128 9.432-5.487 12.604h6.544v4.772z"/></svg>
+        </div>
     </div>
+    <div class="floating-object floating-object--flask">
+        <div class="lab-flask">&#9879;</div>
+    </div>
+    <div class="floating-object floating-object--cell">
+        <div class="lab-cell"></div>
+    </div>
+    <div class="floating-object floating-object--capsule">
+        <div class="lab-capsule"></div>
+    </div>
+    <div class="floating-object floating-object--tube">
+        <div class="lab-tube"></div>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="auth-container">
+
+        <!-- Left Sidebar -->
+        <nav class="sidebar-left" aria-label="Navigation">
+            <div class="sidebar-pill sidebar-pill--active" title="Login">
+                <span>&#8594;</span>
+            </div>
+            <div class="sidebar-pill" title="Register">
+                <span>&#43;</span>
+            </div>
+            <div class="sidebar-pill" title="Info">
+                <span>&#8505;</span>
+            </div>
+        </nav>
+
+        <!-- Auth Card -->
+        <main class="auth-card">
+            <div class="auth-card__decor">
+                <svg width="45" height="45" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><path d="M22.773 15.418v12.124a1.643 1.643 0 0 1-1.627 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418h-3.17v12.124c0 .916-.723 1.659-1.629 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418H9.991v15.763h15.788V15.418h-3.005z"/><path d="M55.428.423H8.643C4.058.423.329 4.153.329 8.738V55.52c0 4.586 3.73 8.315 8.314 8.315h46.785c4.584 0 8.314-3.729 8.314-8.315V8.738c0-4.585-3.729-8.315-8.314-8.315zM8.381 32.788V13.811h4.655v-3.788h-.501l-.008-.908h4.252l.005.908h-.464v3.788h3.17v-3.788h-.501l-.006-.908h4.249l.007.908h-.466v3.788h4.613v18.977H8.381zm17.428 5.185l11.628 6.717l-1.15 1.994l-11.631-6.717l1.153-1.994zM54.698 55.28H26.104v-4.772h10.158c6.95 0 12.607-5.654 12.607-12.604c0-4.394-2.281-8.364-5.835-10.63l-5.797 10.04l-1.203-.695l-1.71 2.959l-3.029-1.749l1.71-2.957l-1.204-.695l13.786-23.881l.927.535l1.387-2.401l3.626 2.094l-1.383 2.405l.881.508l-5.608 9.707c5.006 3.105 8.225 8.633 8.225 14.762c0 4.975-2.128 9.432-5.487 12.604h6.544v4.772z"/></svg>
+            </div>
+
+            <!-- Brand -->
+            <div class="auth-brand">
+                <div class="auth-brand__icon">
+                    <svg width="24" height="24" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><path d="M22.773 15.418v12.124a1.643 1.643 0 0 1-1.627 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418h-3.17v12.124c0 .916-.723 1.659-1.629 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418H9.991v15.763h15.788V15.418h-3.005z"/><path d="M55.428.423H8.643C4.058.423.329 4.153.329 8.738V55.52c0 4.586 3.73 8.315 8.314 8.315h46.785c4.584 0 8.314-3.729 8.314-8.315V8.738c0-4.585-3.729-8.315-8.314-8.315zM8.381 32.788V13.811h4.655v-3.788h-.501l-.008-.908h4.252l.005.908h-.464v3.788h3.17v-3.788h-.501l-.006-.908h4.249l.007.908h-.466v3.788h4.613v18.977H8.381zm17.428 5.185l11.628 6.717l-1.15 1.994l-11.631-6.717l1.153-1.994zM54.698 55.28H26.104v-4.772h10.158c6.95 0 12.607-5.654 12.607-12.604c0-4.394-2.281-8.364-5.835-10.63l-5.797 10.04l-1.203-.695l-1.71 2.959l-3.029-1.749l1.71-2.957l-1.204-.695l13.786-23.881l.927.535l1.387-2.401l3.626 2.094l-1.383 2.405l.881.508l-5.608 9.707c5.006 3.105 8.225 8.633 8.225 14.762c0 4.975-2.128 9.432-5.487 12.604h6.544v4.772z"/></svg>
+                </div>
+                <div class="auth-brand__text">Reserv<span>Lab</span></div>
+            </div>
+
+            <!-- Heading -->
+            <h1 class="auth-title">Bienvenido de vuelta</h1>
+            <p class="auth-subtitle">
+                Accede a tu cuenta para gestionar reservas.
+                <br>&#191;Primera vez? <a href="{% url 'register' %}">Crea tu cuenta gratis</a>
+            </p>
+
+            <!-- Error Messages -->
+            {% if form.errors %}
+            <div class="error-msg">
+                <span>&#9888;</span> Credenciales incorrectas. Verifica e intenta de nuevo.
+            </div>
+            {% endif %}
+
+            <!-- Login Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Usuario</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="form-input"
+                        placeholder="Ingresa tu usuario"
+                        required
+                        autofocus
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Contrasena</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <div class="form-extras">
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Recordarme</label>
+                    </div>
+                    <a href="#" class="form-forgot">Olvidaste tu contrasena?</a>
+                </div>
+
+                <button type="submit" class="btn-primary">Iniciar Sesion</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider"><span>o</span></div>
+
+            <!-- Secondary Action -->
+            <a href="{% url 'register' %}" class="btn-social" style="grid-column: span 2; text-align: center; display: block;">
+                Crear cuenta nueva
+            </a>
+
+            <!-- Footer -->
+            <p class="auth-footer">
+                Sistema de Reservas de Laboratorios<br>
+                <a href="#">Terminos</a> &middot; <a href="#">Privacidad</a>
+            </p>
+        </main>
+
+        <!-- Right Sidebar - Stats -->
+        <aside class="sidebar-right">
+            <div class="stat-card stat-card--primary">
+                <div class="stat-card__number">24/7</div>
+                <div class="stat-card__label">Acceso al sistema</div>
+            </div>
+            <div class="stat-card stat-card--small">
+                <div class="stat-card__number">150+</div>
+                <div class="stat-card__label">Reservas activas</div>
+            </div>
+            <div class="stat-card stat-card--small">
+                <div class="stat-card__number">12</div>
+                <div class="stat-card__label">Laboratorios</div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Minimal JavaScript for Microinteractions -->
+    <script>
+        // Input focus animation enhancement
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.01)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Sidebar pill click interaction
+        document.querySelectorAll('.sidebar-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-pill').forEach(p => p.classList.remove('sidebar-pill--active'));
+                this.classList.add('sidebar-pill--active');
+            });
+        });
+
+        // Parallax effect on floating objects
+        document.addEventListener('mousemove', (e) => {
+            const objects = document.querySelectorAll('.floating-object');
+            const x = (e.clientX / window.innerWidth - 0.5) * 2;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+            objects.forEach((obj, i) => {
+                const speed = (i + 1) * 5;
+                obj.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
 </body>
 </html>
