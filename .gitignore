@@ -1,0 +1,27 @@
+# Carpeta del examen anterior
+Examenfinal_django/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.sqlite3
+db.sqlite3
+
+# Entorno virtual
+venv/
+env/
+.env/
+
+# Variables de entorno
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
