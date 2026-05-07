@@ -393,6 +393,16 @@
 
         .form-input:hover { background: #E8E8EC; }
 
+        select.form-input {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237B7B8E' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.15rem center;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
         .form-help {
             font-size: 0.7rem;
             color: var(--text-light);
@@ -659,6 +669,26 @@
                     {% for field in form %}
                     <div class="form-group">
                         <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                        {% if field.name == 'rol' %}
+                        <select
+                            id="id_{{ field.name }}"
+                            name="{{ field.name }}"
+                            class="form-input"
+                        >
+                            {% for value, label in field.field.choices %}
+                            <option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% elif 'email' in field.name %}
+                        <input
+                            type="email"
+                            id="id_{{ field.name }}"
+                            name="{{ field.name }}"
+                            class="form-input"
+                            placeholder="{{ field.label }}"
+                            value="{{ field.value|default:'' }}"
+                        >
+                        {% else %}
                         <input
                             type="{% if 'password' in field.name %}password{% else %}text{% endif %}"
                             id="id_{{ field.name }}"
@@ -668,6 +698,7 @@
                             {% if forloop.first %}autofocus{% endif %}
                             value="{{ field.value|default:'' }}"
                         >
+                        {% endif %}
                         {% if field.help_text %}
                             <p class="form-help">{{ field.help_text }}</p>
                         {% endif %}

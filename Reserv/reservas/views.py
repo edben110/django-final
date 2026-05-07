@@ -77,12 +77,16 @@ class ReservaListView(LoginRequiredMixin, ListView):
         return f'?{urlencode(params)}' if params else ''
 
 
-class ReservaCreateView(LoginRequiredMixin, CreateView):
-    """Crear una nueva reserva (docente)."""
+class ReservaCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """Crear una nueva reserva (solo docentes)."""
     model = Reserva
     form_class = ReservaForm
     template_name = 'reservas/reserva_form.html'
     success_url = reverse_lazy('reservas:lista')
+
+    def test_func(self):
+        # Solo docentes (no staff) pueden crear reservas
+        return not self.request.user.is_staff
 
     def form_valid(self, form):
         form.instance.usuario = self.request.user
