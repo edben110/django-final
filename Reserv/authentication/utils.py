@@ -1,5 +1,8 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def enviar_codigo_verificacion(usuario, codigo):
@@ -15,17 +18,22 @@ def enviar_codigo_verificacion(usuario, codigo):
         print(f'[AUTH] Código de verificación para {usuario.username}: {codigo}')
         return
 
-    html_contenido = render_to_string(
-        'emails/codigo_verificacion.html', contexto
-    )
-    texto_plano = (
-        f'Hola {contexto["nombre"]}, tu código es: {codigo}. '
-        f'Expira en {contexto["expiracion"]}.'
-    )
-    correo = EmailMultiAlternatives(
-        subject=asunto,
-        body=texto_plano,
-        to=[usuario.email],
-    )
-    correo.attach_alternative(html_contenido, 'text/html')
-    correo.send()
+    try:
+        html_contenido = render_to_string(
+            'emails/codigo_verificacion.html', contexto
+        )
+        texto_plano = (
+            f'Hola {contexto["nombre"]}, tu código es: {codigo}. '
+            f'Expira en {contexto["expiracion"]}.'
+        )
+        correo = EmailMultiAlternatives(
+            subject=asunto,
+            body=texto_plano,
+            to=[usuario.email],
+        )
+        correo.attach_alternative(html_contenido, 'text/html')
+        correo.send()
+    except Exception as e:
+        # Log the error pero no bloquear el flujo (el usuario ya fue creado)
+        logger.error(f'Error enviando código de verificación a {usuario.email}: {str(e)}')
+        print(f'[ERROR] Fallo al enviar correo a {usuario.email}: {str(e)}')
