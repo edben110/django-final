@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación 2FA - ReservLab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           CSS VARIABLES - BioLab Design System
+        ============================================ */
+        :root {
+            --primary: #4B3DFF;
+            --primary-light: #6D6BFF;
+            --primary-dark: #3A2FCC;
+            --accent-red: #FF6A5B;
+            --accent-orange: #FF8A6B;
+            --accent-green: #22C55E;
+            --bg-white: #F6F6F8;
+            --card-gray: #EFEFF2;
+            --text-dark: #1A1A2E;
+            --text-muted: #7B7B8E;
+            --text-light: #A8A8B8;
+            --white: #FFFFFF;
+            --shadow-primary: 0 20px 60px rgba(75, 61, 255, 0.18);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 12px 40px rgba(75, 61, 255, 0.25);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 40px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* Fondo decorativo */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-blob--blue {
+            width: 600px; height: 600px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            top: -200px; right: -150px;
+            animation: floatBlob 8s ease-in-out infinite;
+        }
+        .bg-blob--red {
+            width: 300px; height: 300px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            bottom: -100px; left: -50px;
+            animation: floatBlob 6s ease-in-out infinite reverse;
+        }
+        @keyframes floatBlob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* Tarjeta */
+        .verify-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2.75rem;
+            box-shadow: var(--shadow-card);
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .verify-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 3rem;
+            right: 3rem;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-red));
+            border-radius: 0 0 4px 4px;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Marca */
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .auth-brand__icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-primary);
+        }
+        .auth-brand__text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: -0.3px;
+        }
+        .auth-brand__text span { color: var(--primary); }
+
+        /* Indicador de pasos */
+        .steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-bottom: 2rem;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .step.completed { color: var(--accent-green); }
+        .step.completed .step-dot { background: var(--accent-green); }
+        .step.active { color: var(--primary); }
+        .step.active .step-dot {
+            background: var(--primary);
+            box-shadow: 0 0 0 4px rgba(75, 61, 255, 0.15);
+        }
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--card-gray);
+            transition: var(--transition);
+        }
+        .step-line {
+            width: 22px;
+            height: 2px;
+            background: var(--card-gray);
+            border-radius: 2px;
+        }
+
+        /* Ícono escudo */
+        .shield-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-md);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-primary);
+            color: var(--white);
+        }
+
+        /* Títulos */
+        .auth-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.8rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .auth-subtitle strong {
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        /* Inputs de código */
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .code-inputs input {
+            width: 52px;
+            height: 60px;
+            background: var(--card-gray);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            font-family: 'Inter', monospace;
+            transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        .code-inputs input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(75, 61, 255, 0.08), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        .code-inputs input:not(:placeholder-shown) {
+            background: var(--white);
+            border-color: var(--primary-light);
+        }
+
+        /* Botón principal */
+        .btn-primary {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-primary);
+            letter-spacing: 0.3px;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Reenviar */
+        .resend-section {
+            text-align: center;
+            margin-top: 1.2rem;
+        }
+        .btn-resend {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .btn-resend.active {
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .btn-resend.active:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Error */
+        .error-msg {
+            background: rgba(255, 106, 91, 0.08);
+            border: 1px solid rgba(255, 106, 91, 0.2);
+            color: var(--accent-red);
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Nota */
+        .note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 560px) {
+            .verify-card {
+                padding: 2.5rem 1.75rem;
+                border-radius: var(--radius-lg);
+            }
+            .auth-title { font-size: 1.5rem; }
+            .code-inputs input { width: 44px; height: 54px; font-size: 1.3rem; }
+            .code-inputs { gap: 0.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Blobs -->
+    <div class="bg-blob bg-blob--blue"></div>
+    <div class="bg-blob bg-blob--red"></div>
+
+    <div class="verify-card">
+        <!-- Marca -->
+        <div class="auth-brand">
+            <div class="auth-brand__icon">
+                <svg width="24" height="24" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><path d="M22.773 15.418v12.124a1.643 1.643 0 0 1-1.627 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418h-3.17v12.124c0 .916-.723 1.659-1.629 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418H9.991v15.763h15.788V15.418h-3.005z"/><path d="M55.428.423H8.643C4.058.423.329 4.153.329 8.738V55.52c0 4.586 3.73 8.315 8.314 8.315h46.785c4.584 0 8.314-3.729 8.314-8.315V8.738c0-4.585-3.729-8.315-8.314-8.315zM8.381 32.788V13.811h4.655v-3.788h-.501l-.008-.908h4.252l.005.908h-.464v3.788h3.17v-3.788h-.501l-.006-.908h4.249l.007.908h-.466v3.788h4.613v18.977H8.381zm17.428 5.185l11.628 6.717l-1.15 1.994l-11.631-6.717l1.153-1.994zM54.698 55.28H26.104v-4.772h10.158c6.95 0 12.607-5.654 12.607-12.604c0-4.394-2.281-8.364-5.835-10.63l-5.797 10.04l-1.203-.695l-1.71 2.959l-3.029-1.749l1.71-2.957l-1.204-.695l13.786-23.881l.927.535l1.387-2.401l3.626 2.094l-1.383 2.405l.881.508l-5.608 9.707c5.006 3.105 8.225 8.633 8.225 14.762c0 4.975-2.128 9.432-5.487 12.604h6.544v4.772z"/></svg>
+            </div>
+            <div class="auth-brand__text">Reserv<span>Lab</span></div>
+        </div>
+
+        <!-- Pasos -->
+        <div class="steps">
+            <div class="step completed">
+                <span class="step-dot"></span>
+                <span>Credenciales</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <span class="step-dot"></span>
+                <span>Verificación</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <span class="step-dot"></span>
+                <span>Acceso</span>
+            </div>
+        </div>
+
+        <!-- Ícono escudo -->
+        <div class="shield-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+            </svg>
+        </div>
+
+        <h1 class="auth-title">Verificación de identidad</h1>
+        <p class="auth-subtitle">
+            Enviamos un código de 6 dígitos a<br>
+            <strong>{{ email_mascarado }}</strong>
+        </p>
+
+        {% if error %}
+            <div class="error-msg">
+                <span>&#9888;</span> {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="post" id="verify-form">
+            {% csrf_token %}
+            <input type="hidden" name="codigo" id="codigo-hidden">
+
+            <div class="code-inputs">
+                <input type="text" inputmode="numeric" maxlength="1" id="d0" placeholder=" " autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d1" placeholder=" " autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d2" placeholder=" " autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d3" placeholder=" " autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d4" placeholder=" " autocomplete="off">
+                <input type="text" inputmode="numeric" maxlength="1" id="d5" placeholder=" " autocomplete="off">
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-verify" disabled>
+                Verificar acceso
+            </button>
+        </form>
+
+        <div class="resend-section">
+            <a href="{% url 'reenviar_codigo' %}" id="btn-resend" class="btn-resend" style="pointer-events:none;">
+                Reenviar código en <span id="countdown">30</span>s
+            </a>
+        </div>
+
+        <p class="note">
+            El código expira en 10 minutos y es de un solo uso.
+        </p>
+    </div>
+
+    <script>
+        (function() {
+            const inputs = document.querySelectorAll('.code-inputs input');
+            const hiddenInput = document.getElementById('codigo-hidden');
+            const btnVerify = document.getElementById('btn-verify');
+            const btnResend = document.getElementById('btn-resend');
+            const countdownEl = document.getElementById('countdown');
+
+            inputs[0].focus();
+
+            function updateHidden() {
+                let code = '';
+                inputs.forEach(inp => { code += inp.value; });
+                hiddenInput.value = code;
+                btnVerify.disabled = code.length < 6;
+            }
+
+            inputs.forEach((input, idx) => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/\D/g, '').slice(0, 1);
+                    if (this.value && idx < inputs.length - 1) {
+                        inputs[idx + 1].focus();
+                    }
+                    updateHidden();
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && idx > 0) {
+                        inputs[idx - 1].focus();
+                        inputs[idx - 1].value = '';
+                        updateHidden();
+                    }
+                });
+
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pasted = (e.clipboardData || window.clipboardData)
+                        .getData('text').replace(/\D/g, '').slice(0, 6);
+                    for (let i = 0; i < pasted.length && i < inputs.length; i++) {
+                        inputs[i].value = pasted[i];
+                    }
+                    if (pasted.length > 0) {
+                        const focusIdx = Math.min(pasted.length, inputs.length - 1);
+                        inputs[focusIdx].focus();
+                    }
+                    updateHidden();
+                });
+            });
+
+            let seconds = 30;
+            const timer = setInterval(function() {
+                seconds--;
+                countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    btnResend.style.pointerEvents = 'auto';
+                    btnResend.classList.add('active');
+                    btnResend.textContent = 'Reenviar código';
+                }
+            }, 1000);
+        })();
+    </script>
+</body>
+</html>

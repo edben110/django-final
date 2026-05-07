@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif">
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px">
+        <tr>
+            <td align="center">
+                <table width="480" cellpadding="0" cellspacing="0"
+                       style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e4e4e7">
+                    <!-- Encabezado azul -->
+                    <tr>
+                        <td style="background:#185FA5;padding:28px 32px;text-align:center">
+                            <p style="margin:0;color:#ffffff;font-size:20px;font-weight:600">
+                                Sistema de Reservas de Laboratorios
+                            </p>
+                            <p style="margin:6px 0 0;color:#93c5fd;font-size:13px">
+                                Verificación de identidad
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Cuerpo -->
+                    <tr>
+                        <td style="padding:32px">
+                            <p style="margin:0 0 8px;font-size:15px;color:#18181b">
+                                Hola, <strong>{{ nombre }}</strong>
+                            </p>
+                            <p style="margin:0 0 24px;font-size:14px;color:#71717a;line-height:1.6">
+                                Recibimos una solicitud de acceso a tu cuenta. Usa el siguiente
+                                código para completar el inicio de sesión:
+                            </p>
+                            <!-- Código destacado -->
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="padding:20px 0">
+                                        <div style="display:inline-block;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:20px 40px">
+                                            <p style="margin:0;letter-spacing:10px;font-size:34px;font-weight:700;color:#1d4ed8">
+                                                {{ codigo }}
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin:16px 0 0;font-size:13px;color:#71717a;text-align:center">
+                                Este código es válido por <strong>{{ expiracion }}</strong>
+                                y es de un solo uso.
+                            </p>
+                            <hr style="margin:24px 0;border:none;border-top:1px solid #f4f4f5">
+                            <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.6">
+                                Si no solicitaste este código, ignora este correo. Tu cuenta
+                                permanece segura. Por seguridad, nunca compartas este código
+                                con nadie.
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Pie -->
+                    <tr>
+                        <td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #f4f4f5">
+                            <p style="margin:0;font-size:11px;color:#a1a1aa">
+                                Sistema de Gestión de Reservas · Correo automático, no responder
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

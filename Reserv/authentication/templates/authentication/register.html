@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioLab Auth - Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           CSS VARIABLES - BioLab Design System
+        ============================================ */
+        :root {
+            --primary: #4B3DFF;
+            --primary-light: #6D6BFF;
+            --primary-dark: #3A2FCC;
+            --accent-red: #FF6A5B;
+            --accent-orange: #FF8A6B;
+            --bg-white: #F6F6F8;
+            --card-gray: #EFEFF2;
+            --text-dark: #1A1A2E;
+            --text-muted: #7B7B8E;
+            --text-light: #A8A8B8;
+            --white: #FFFFFF;
+            --shadow-primary: 0 20px 60px rgba(75, 61, 255, 0.18);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 12px 40px rgba(75, 61, 255, 0.25);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 40px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ============================================
+           FLOATING BACKGROUND ELEMENTS
+        ============================================ */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-blob--blue {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            top: -150px;
+            left: -100px;
+            animation: floatBlob 8s ease-in-out infinite;
+        }
+
+        .bg-blob--red {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            bottom: -150px;
+            right: -80px;
+            animation: floatBlob 6s ease-in-out infinite reverse;
+        }
+
+        .bg-blob--purple {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, var(--primary-light), #9B8FFF);
+            top: 40%;
+            right: 5%;
+            animation: floatBlob 10s ease-in-out infinite;
+        }
+
+        @keyframes floatBlob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* ============================================
+           FLOATING 3D LABORATORY OBJECTS
+        ============================================ */
+        .floating-object {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatObject 6s ease-in-out infinite;
+        }
+
+        .floating-object--1 {
+            top: 10%;
+            left: 8%;
+            animation-delay: 0s;
+        }
+
+        .floating-object--2 {
+            bottom: 15%;
+            left: 12%;
+            animation-delay: -2s;
+        }
+
+        .floating-object--3 {
+            top: 20%;
+            right: 6%;
+            animation-delay: -4s;
+        }
+
+        .floating-object--4 {
+            bottom: 25%;
+            right: 10%;
+            animation-delay: -1s;
+        }
+
+        .lab-cell {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent-red), #FF4040);
+            border-radius: 50%;
+            opacity: 0.6;
+            box-shadow: 0 8px 20px rgba(255, 106, 91, 0.25);
+            position: relative;
+        }
+
+        .lab-cell::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+        }
+
+        .lab-cell--sm {
+            width: 30px;
+            height: 30px;
+        }
+
+        .lab-cell--sm::after {
+            width: 10px;
+            height: 10px;
+            top: 5px;
+            left: 5px;
+        }
+
+        .lab-capsule {
+            width: 50px;
+            height: 24px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 20px;
+            box-shadow: var(--shadow-primary);
+            transform: rotate(25deg);
+        }
+
+        .lab-flask-icon {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: var(--shadow-primary);
+            transform: rotate(-8deg);
+        }
+
+        @keyframes floatObject {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+
+        /* ============================================
+           MAIN LAYOUT
+        ============================================ */
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr minmax(440px, 540px) 1fr;
+            min-height: 100vh;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ============================================
+           LEFT DECORATIVE PANEL
+        ============================================ */
+        .deco-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1.25rem;
+            padding-right: 2.5rem;
+        }
+
+        .deco-block {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            color: var(--white);
+            box-shadow: var(--shadow-primary);
+            transition: var(--transition);
+            width: 180px;
+        }
+
+        .deco-block:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .deco-block__icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .deco-block__title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .deco-block__text {
+            font-size: 0.72rem;
+            opacity: 0.7;
+        }
+
+        .deco-block--outline {
+            background: var(--white);
+            border: 2px solid var(--card-gray);
+            color: var(--text-dark);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ============================================
+           AUTH CARD
+        ============================================ */
+        .auth-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2.75rem;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: visible;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 2.75rem;
+            right: 2.75rem;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary), var(--accent-red));
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* Floating decor */
+        .auth-card__decor {
+            position: absolute;
+            top: -25px;
+            left: -15px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 20px;
+            transform: rotate(-12deg);
+            box-shadow: var(--shadow-primary);
+            animation: floatObject 5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* ============================================
+           BRANDING
+        ============================================ */
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-brand__icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .auth-brand__text {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .auth-brand__text span { color: var(--primary); }
+
+        /* ============================================
+           HEADINGS
+        ============================================ */
+        .auth-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .auth-subtitle a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .auth-subtitle a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           FORM
+        ============================================ */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.95rem 1.15rem;
+            background: var(--card-gray);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .form-input::placeholder { color: var(--text-light); }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(75, 61, 255, 0.08);
+        }
+
+        .form-input:hover { background: #E8E8EC; }
+
+        select.form-input {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237B7B8E' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.15rem center;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        .form-help {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+            padding-left: 0.1rem;
+        }
+
+        .errorlist {
+            list-style: none;
+            margin-top: 0.3rem;
+        }
+
+        .errorlist li {
+            color: var(--accent-red);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           BUTTON
+        ============================================ */
+        .btn-primary {
+            width: 100%;
+            padding: 1.05rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-primary);
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-primary:hover::before { left: 100%; }
+
+        /* ============================================
+           DIVIDER & SECONDARY
+        ============================================ */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            gap: 1rem;
+        }
+
+        .auth-divider::before, .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--card-gray);
+        }
+
+        .auth-divider span {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .btn-secondary {
+            display: block;
+            width: 100%;
+            padding: 0.95rem;
+            background: var(--card-gray);
+            color: var(--text-dark);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: var(--white);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ============================================
+           FOOTER
+        ============================================ */
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.73rem;
+            color: var(--text-light);
+        }
+
+        .auth-footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover { color: var(--primary); }
+
+        /* ============================================
+           RIGHT PANEL
+        ============================================ */
+        .info-panel {
+            padding-left: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .info-card__icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card__title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.2rem;
+        }
+
+        .info-card__text {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 1200px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+            .deco-panel, .info-panel { display: none; }
+        }
+
+        @media (max-width: 560px) {
+            .auth-card {
+                padding: 2.25rem 1.5rem;
+                border-radius: var(--radius-lg);
+            }
+            .auth-title { font-size: 1.5rem; }
+            .auth-card__decor { display: none; }
+        }
+
+        /* ============================================
+           ANIMATIONS
+        ============================================ */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .deco-panel, .info-panel {
+            animation: fadeIn 0.8s ease 0.3s forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Blobs -->
+    <div class="bg-blob bg-blob--blue"></div>
+    <div class="bg-blob bg-blob--red"></div>
+    <div class="bg-blob bg-blob--purple"></div>
+
+    <!-- Floating Lab Objects -->
+    <div class="floating-object floating-object--1">
+        <div class="lab-cell"></div>
+    </div>
+    <div class="floating-object floating-object--2">
+        <div class="lab-cell lab-cell--sm"></div>
+    </div>
+    <div class="floating-object floating-object--3">
+        <div class="lab-flask-icon">&#9879;</div>
+    </div>
+    <div class="floating-object floating-object--4">
+        <div class="lab-capsule"></div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="auth-container">
+
+        <!-- Left Decorative Panel -->
+        <aside class="deco-panel">
+            <div class="deco-block">
+                <div class="deco-block__icon">&#128272;</div>
+                <div class="deco-block__title">Seguro</div>
+                <div class="deco-block__text">Datos encriptados end-to-end</div>
+            </div>
+            <div class="deco-block deco-block--outline">
+                <div class="deco-block__icon">&#9889;</div>
+                <div class="deco-block__title">Rapido</div>
+                <div class="deco-block__text">Registro en 30 segundos</div>
+            </div>
+            <div class="deco-block">
+                <div class="deco-block__icon">&#127891;</div>
+                <div class="deco-block__title">Academico</div>
+                <div class="deco-block__text">Para docentes e investigadores</div>
+            </div>
+        </aside>
+
+        <!-- Auth Card -->
+        <main class="auth-card">
+            <div class="auth-card__decor">&#128300;</div>
+
+            <!-- Brand -->
+            <div class="auth-brand">
+                <div class="auth-brand__icon">&#127981;</div>
+                <div class="auth-brand__text">Reserv<span>Lab</span></div>
+            </div>
+
+            <!-- Heading -->
+            <h1 class="auth-title">Crear cuenta</h1>
+            <p class="auth-subtitle">
+                &#191;Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesion</a>
+            </p>
+
+            <!-- Register Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="form-grid">
+                    {% for field in form %}
+                    <div class="form-group">
+                        <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                        {% if field.name == 'rol' %}
+                        <select
+                            id="id_{{ field.name }}"
+                            name="{{ field.name }}"
+                            class="form-input"
+                        >
+                            {% for value, label in field.field.choices %}
+                            <option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% elif 'email' in field.name %}
+                        <input
+                            type="email"
+                            id="id_{{ field.name }}"
+                            name="{{ field.name }}"
+                            class="form-input"
+                            placeholder="{{ field.label }}"
+                            value="{{ field.value|default:'' }}"
+                        >
+                        {% else %}
+                        <input
+                            type="{% if 'password' in field.name %}password{% else %}text{% endif %}"
+                            id="id_{{ field.name }}"
+                            name="{{ field.name }}"
+                            class="form-input"
+                            placeholder="{{ field.label }}"
+                            {% if forloop.first %}autofocus{% endif %}
+                            value="{{ field.value|default:'' }}"
+                        >
+                        {% endif %}
+                        {% if field.help_text %}
+                            <p class="form-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                            <ul class="errorlist">
+                                {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn-primary">Crear mi cuenta</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider"><span>o</span></div>
+
+            <!-- Secondary Action -->
+            <a href="{% url 'login' %}" class="btn-secondary">Ya tengo cuenta - Iniciar sesion</a>
+
+            <!-- Footer -->
+            <p class="auth-footer">
+                Sistema de Reservas de Laboratorios<br>
+                <a href="#">Terminos</a> &middot; <a href="#">Privacidad</a>
+            </p>
+        </main>
+
+        <!-- Right Info Panel -->
+        <aside class="info-panel">
+            <div class="info-card">
+                <div class="info-card__icon">&#128218;</div>
+                <div class="info-card__title">Reserva Labs</div>
+                <div class="info-card__text">Gestiona horarios de laboratorio facilmente</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card__icon">&#128202;</div>
+                <div class="info-card__title">Estadisticas</div>
+                <div class="info-card__text">Visualiza el uso de recursos en tiempo real</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card__icon">&#128276;</div>
+                <div class="info-card__title">Notificaciones</div>
+                <div class="info-card__text">Alertas de aprobacion y recordatorios</div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- JavaScript Microinteractions -->
+    <script>
+        // Input focus animation
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.01)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Parallax on floating objects
+        document.addEventListener('mousemove', (e) => {
+            const objects = document.querySelectorAll('.floating-object');
+            const x = (e.clientX / window.innerWidth - 0.5) * 2;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+            objects.forEach((obj, i) => {
+                const speed = (i + 1) * 4;
+                obj.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
+</body>
+</html>

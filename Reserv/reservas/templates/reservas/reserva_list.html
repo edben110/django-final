@@ -1,0 +1,134 @@
+{% extends "reservas/base.html" %}
+
+{% block title %}Mis Reservas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{% if user.is_staff %}Todas las Reservas{% else %}Mis Reservas{% endif %}</h2>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ reservas_export_url }}" class="btn btn-secondary">Exportar CSV</a>
+        {% if not user.is_staff %}
+            <a href="{% url 'reservas:crear' %}" class="btn btn-success">+ Nueva Reserva</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Filtrar por fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ fecha_filtrada }}">
+            </div>
+            <div class="col-md-5">
+                <label for="laboratorio" class="form-label">Filtrar por laboratorio</label>
+                <select class="form-select" id="laboratorio" name="laboratorio">
+                    <option value="">Todos los laboratorios</option>
+                    {% for laboratorio in laboratorios_disponibles %}
+                        <option value="{{ laboratorio }}" {% if laboratorio == laboratorio_filtrado %}selected{% endif %}>{{ laboratorio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Aplicar filtros</button>
+                <a href="{% url 'reservas:lista' %}" class="btn btn-secondary w-100">Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Total</div>
+                <div class="display-6 fw-bold">{{ total_reservas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Pendientes</div>
+                <div class="display-6 fw-bold">{{ reservas_pendientes }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Aprobadas</div>
+                <div class="display-6 fw-bold">{{ reservas_aprobadas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Laboratorios usados</div>
+                <div class="display-6 fw-bold">{{ laboratorios_usados }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if reservas %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Laboratorio</th>
+                <th>Fecha</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>Estado</th>
+                <th>Motivo</th>
+                {% if user.is_staff %}<th>Solicitante</th>{% endif %}
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.laboratorio }}</td>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora_inicio }}</td>
+                <td>{{ reserva.hora_fin }}</td>
+                <td>
+                    {% if reserva.estado == 'pendiente' %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% elif reserva.estado == 'aprobada' %}
+                        <span class="badge bg-success">Aprobada</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rechazada</span>
+                    {% endif %}
+                </td>
+                <td>{{ reserva.motivo|truncatewords:10 }}</td>
+                {% if user.is_staff %}<td>{{ reserva.usuario.username }}</td>{% endif %}
+                <td>
+                    {% if user.is_staff and reserva.estado == 'pendiente' %}
+                        <form method="post" action="{% url 'reservas:cambiar_estado' reserva.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="aprobada">
+                            <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                        </form>
+                        <form method="post" action="{% url 'reservas:cambiar_estado' reserva.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="rechazada">
+                            <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
+                        </form>
+                    {% endif %}
+                    {% if not user.is_staff and reserva.estado == 'pendiente' %}
+                        <a href="{% url 'reservas:editar' reserva.pk %}" class="btn btn-sm btn-primary">Editar</a>
+                        <a href="{% url 'reservas:eliminar' reserva.pk %}" class="btn btn-sm btn-danger">Cancelar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <div class="alert alert-info">No hay reservas registradas.</div>
+{% endif %}
+{% endblock %}
