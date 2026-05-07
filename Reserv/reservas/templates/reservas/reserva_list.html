@@ -5,9 +5,71 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>{% if user.is_staff %}Todas las Reservas{% else %}Mis Reservas{% endif %}</h2>
-    {% if not user.is_staff %}
-        <a href="{% url 'reservas:crear' %}" class="btn btn-success">+ Nueva Reserva</a>
-    {% endif %}
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ reservas_export_url }}" class="btn btn-secondary">Exportar CSV</a>
+        {% if not user.is_staff %}
+            <a href="{% url 'reservas:crear' %}" class="btn btn-success">+ Nueva Reserva</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Filtrar por fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ fecha_filtrada }}">
+            </div>
+            <div class="col-md-5">
+                <label for="laboratorio" class="form-label">Filtrar por laboratorio</label>
+                <select class="form-select" id="laboratorio" name="laboratorio">
+                    <option value="">Todos los laboratorios</option>
+                    {% for laboratorio in laboratorios_disponibles %}
+                        <option value="{{ laboratorio }}" {% if laboratorio == laboratorio_filtrado %}selected{% endif %}>{{ laboratorio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Aplicar filtros</button>
+                <a href="{% url 'reservas:lista' %}" class="btn btn-secondary w-100">Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Total</div>
+                <div class="display-6 fw-bold">{{ total_reservas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Pendientes</div>
+                <div class="display-6 fw-bold">{{ reservas_pendientes }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Aprobadas</div>
+                <div class="display-6 fw-bold">{{ reservas_aprobadas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold">Laboratorios usados</div>
+                <div class="display-6 fw-bold">{{ laboratorios_usados }}</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% if reservas %}
