@@ -56,7 +56,7 @@ def verificar_codigo_view(request):
             login(request, usuario, backend='django.contrib.auth.backends.ModelBackend')
             del request.session['usuario_pendiente_2fa']
             obj.delete()
-            return redirect('reserva_list')
+            return redirect('reservas:lista')
         else:
             obj.intentos += 1
             obj.save()
@@ -94,7 +94,7 @@ def reenviar_codigo_view(request):
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('reserva_list')
+        return redirect('reservas:lista')
 
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -102,7 +102,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, 'Cuenta creada exitosamente. ¡Bienvenido!')
-            return redirect('reserva_list')
+            return redirect('reservas:lista')
     else:
         form = RegistroForm()
 

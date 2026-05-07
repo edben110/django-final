@@ -3,25 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Reservas de Laboratorios{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <title>{% block title %}Reservas de Laboratorios{% endblock %} - ReservLab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar { margin-bottom: 20px; }
+        /* BioLab Design System */
+        :root {
+            --primary: #4B3DFF;
+            --primary-light: #6D6BFF;
+            --primary-dark: #3A2FCC;
+            --accent-red: #FF6A5B;
+            --accent-orange: #FF8A6B;
+            --accent-green: #22C55E;
+            --bg-white: #F6F6F8;
+            --card-gray: #EFEFF2;
+            --text-dark: #1A1A2E;
+            --text-muted: #7B7B8E;
+            --text-light: #A8A8B8;
+            --white: #FFFFFF;
+            --shadow-primary: 0 20px 60px rgba(75, 61, 255, 0.18);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 12px 40px rgba(75, 61, 255, 0.25);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-white);
+            min-height: 100vh;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Fondo decorativo */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-blob--blue {
+            width: 500px; height: 500px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            top: -250px; right: -200px;
+        }
+        .bg-blob--red {
+            width: 300px; height: 300px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            bottom: -150px; left: -100px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--white) !important;
+            box-shadow: var(--shadow-card);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+        .navbar-brand {
+            display: flex !important;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 700 !important;
+            font-size: 1.15rem !important;
+            color: var(--text-dark) !important;
+            letter-spacing: -0.3px;
+        }
+        .navbar-brand__icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-primary);
+        }
+        .navbar-brand__text span { color: var(--primary); }
+
+        .navbar-text {
+            color: var(--text-muted) !important;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+        .navbar-text .user-badge {
+            background: var(--card-gray);
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.78rem;
+            margin-left: 0.3rem;
+        }
+        .nav-link {
+            color: var(--primary) !important;
+            font-weight: 600 !important;
+            font-size: 0.88rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+        .nav-link:hover {
+            background: rgba(75, 61, 255, 0.08);
+            color: var(--primary-dark) !important;
+        }
+
+        /* Contenedor principal */
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Títulos */
+        h1, h2, h3, h4, h5 {
+            color: var(--text-dark);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        h2 { font-size: 1.8rem; }
+
+        /* Botones */
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            padding: 0.65rem 1.25rem;
+            transition: var(--transition);
+            border: none;
+            letter-spacing: 0.2px;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #16A34A);
+            color: var(--white);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.25);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(34, 197, 94, 0.35);
+            background: linear-gradient(135deg, #16A34A, var(--accent-green));
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            box-shadow: var(--shadow-primary);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            box-shadow: 0 8px 20px rgba(255, 106, 91, 0.25);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(255, 106, 91, 0.35);
+        }
+        .btn-secondary {
+            background: var(--card-gray);
+            color: var(--text-dark);
+        }
+        .btn-secondary:hover {
+            background: #E1E1E6;
+            color: var(--text-dark);
+            transform: translateY(-2px);
+        }
+        .btn-sm {
+            padding: 0.4rem 0.85rem;
+            font-size: 0.82rem;
+        }
+
+        /* Tabla */
+        .table-responsive {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-card);
+            padding: 0.5rem;
+            overflow: hidden;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead.table-dark th {
+            background: linear-gradient(135deg, var(--text-dark), #2A2A42) !important;
+            color: var(--white) !important;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            border: none;
+        }
+        .table thead.table-dark th:first-child { border-top-left-radius: var(--radius-sm); }
+        .table thead.table-dark th:last-child { border-top-right-radius: var(--radius-sm); }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: var(--card-gray);
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+        .table-striped tbody tr:nth-of-type(odd) { background: var(--bg-white); }
+        .table-hover tbody tr:hover { background: rgba(75, 61, 255, 0.04); }
+
+        /* Badges */
+        .badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .bg-warning { background: rgba(255, 180, 70, 0.15) !important; color: #C97A00 !important; }
+        .bg-success { background: rgba(34, 197, 94, 0.15) !important; color: #15803D !important; }
+        .bg-danger { background: rgba(255, 106, 91, 0.15) !important; color: var(--accent-red) !important; }
+
+        /* Alertas */
+        .alert {
+            border-radius: var(--radius-sm);
+            border: none;
+            padding: 1rem 1.25rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-card);
+        }
+        .alert-info {
+            background: rgba(75, 61, 255, 0.08);
+            color: var(--primary-dark);
+        }
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #15803D;
+        }
+        .alert-danger {
+            background: rgba(255, 106, 91, 0.1);
+            color: var(--accent-red);
+        }
+        .alert-warning {
+            background: rgba(255, 180, 70, 0.1);
+            color: #B45309;
+        }
+
+        /* Cards, forms */
+        .card {
+            border: none;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-card);
+            background: var(--white);
+        }
+        .card-body { padding: 2rem; }
+
+        .form-control, .form-select {
+            padding: 0.75rem 1rem;
+            background: var(--card-gray);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(75, 61, 255, 0.08);
+        }
+        .form-label {
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            h2 { font-size: 1.4rem; }
+            .navbar-brand { font-size: 1rem !important; }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Background -->
+    <div class="bg-blob bg-blob--blue"></div>
+    <div class="bg-blob bg-blob--red"></div>
+
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{% url 'reservas:lista' %}">
-                Reservas Lab
+                <span class="navbar-brand__icon">
+                    <svg width="20" height="20" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><path d="M22.773 15.418v12.124a1.643 1.643 0 0 1-1.627 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418h-3.17v12.124c0 .916-.723 1.659-1.629 1.663a1.665 1.665 0 0 1-1.655-1.663V15.418H9.991v15.763h15.788V15.418h-3.005z"/><path d="M55.428.423H8.643C4.058.423.329 4.153.329 8.738V55.52c0 4.586 3.73 8.315 8.314 8.315h46.785c4.584 0 8.314-3.729 8.314-8.315V8.738c0-4.585-3.729-8.315-8.314-8.315zM8.381 32.788V13.811h4.655v-3.788h-.501l-.008-.908h4.252l.005.908h-.464v3.788h3.17v-3.788h-.501l-.006-.908h4.249l.007.908h-.466v3.788h4.613v18.977H8.381zm17.428 5.185l11.628 6.717l-1.15 1.994l-11.631-6.717l1.153-1.994zM54.698 55.28H26.104v-4.772h10.158c6.95 0 12.607-5.654 12.607-12.604c0-4.394-2.281-8.364-5.835-10.63l-5.797 10.04l-1.203-.695l-1.71 2.959l-3.029-1.749l1.71-2.957l-1.204-.695l13.786-23.881l.927.535l1.387-2.401l3.626 2.094l-1.383 2.405l.881.508l-5.608 9.707c5.006 3.105 8.225 8.633 8.225 14.762c0 4.975-2.128 9.432-5.487 12.604h6.544v4.772z"/></svg>
+                </span>
+                <span class="navbar-brand__text">Reserv<span>Lab</span></span>
             </a>
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav ms-auto align-items-center">
                 {% if user.is_authenticated %}
                     <span class="navbar-text me-3">
-                        {{ user.username }}
-                        {% if user.is_staff %}(Admin){% else %}(Docente){% endif %}
+                        Hola, <strong>{{ user.username }}</strong>
+                        <span class="user-badge">{% if user.is_staff %}Admin{% else %}Docente{% endif %}</span>
                     </span>
                     <a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
                 {% else %}
@@ -36,8 +327,7 @@
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
                     {{ message }}
-                    <button type="button" class="btn-close"
-                            data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -45,7 +335,6 @@
         {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
