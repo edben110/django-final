@@ -1,0 +1,72 @@
+{% extends "reservas/base.html" %}
+
+{% block title %}Mis Reservas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{% if user.is_staff %}Todas las Reservas{% else %}Mis Reservas{% endif %}</h2>
+    {% if not user.is_staff %}
+        <a href="{% url 'reservas:crear' %}" class="btn btn-success">+ Nueva Reserva</a>
+    {% endif %}
+</div>
+
+{% if reservas %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Laboratorio</th>
+                <th>Fecha</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>Estado</th>
+                <th>Motivo</th>
+                {% if user.is_staff %}<th>Solicitante</th>{% endif %}
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.laboratorio }}</td>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora_inicio }}</td>
+                <td>{{ reserva.hora_fin }}</td>
+                <td>
+                    {% if reserva.estado == 'pendiente' %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% elif reserva.estado == 'aprobada' %}
+                        <span class="badge bg-success">Aprobada</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rechazada</span>
+                    {% endif %}
+                </td>
+                <td>{{ reserva.motivo|truncatewords:10 }}</td>
+                {% if user.is_staff %}<td>{{ reserva.usuario.username }}</td>{% endif %}
+                <td>
+                    {% if user.is_staff and reserva.estado == 'pendiente' %}
+                        <form method="post" action="{% url 'reservas:cambiar_estado' reserva.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="aprobada">
+                            <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                        </form>
+                        <form method="post" action="{% url 'reservas:cambiar_estado' reserva.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="rechazada">
+                            <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
+                        </form>
+                    {% endif %}
+                    {% if not user.is_staff and reserva.estado == 'pendiente' %}
+                        <a href="{% url 'reservas:editar' reserva.pk %}" class="btn btn-sm btn-primary">Editar</a>
+                        <a href="{% url 'reservas:eliminar' reserva.pk %}" class="btn btn-sm btn-danger">Cancelar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <div class="alert alert-info">No hay reservas registradas.</div>
+{% endif %}
+{% endblock %}
