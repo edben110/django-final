@@ -219,51 +219,18 @@
         ============================================ */
         .auth-container {
             display: grid;
-            grid-template-columns: 1fr minmax(420px, 500px) 1fr;
+            grid-template-columns: 1fr;
             min-height: 100vh;
             align-items: center;
+            justify-items: center;
             padding: 2rem;
             position: relative;
             z-index: 2;
         }
 
         /* ============================================
-           LEFT SIDEBAR PANEL
+           LEFT SIDEBAR - REMOVED
         ============================================ */
-        .sidebar-left {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 1rem;
-            padding-right: 2rem;
-        }
-
-        .sidebar-pill {
-            width: 48px;
-            height: 48px;
-            background: var(--white);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-card);
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        .sidebar-pill:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-            color: var(--primary);
-        }
-
-        .sidebar-pill--active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: var(--white);
-            box-shadow: var(--shadow-primary);
-        }
 
         /* ============================================
            AUTH CARD - MAIN FORM
@@ -741,18 +708,7 @@
     <!-- Main Grid Layout -->
     <div class="auth-container">
 
-        <!-- Left Sidebar -->
-        <nav class="sidebar-left" aria-label="Navigation">
-            <div class="sidebar-pill sidebar-pill--active" title="Login">
-                <span>&#8594;</span>
-            </div>
-            <div class="sidebar-pill" title="Register">
-                <span>&#43;</span>
-            </div>
-            <div class="sidebar-pill" title="Info">
-                <span>&#8505;</span>
-            </div>
-        </nav>
+        <!-- Left Sidebar removed -->
 
         <!-- Auth Card -->
         <main class="auth-card">
@@ -839,21 +795,7 @@
             </p>
         </main>
 
-        <!-- Right Sidebar - Stats -->
-        <aside class="sidebar-right">
-            <div class="stat-card stat-card--primary">
-                <div class="stat-card__number">24/7</div>
-                <div class="stat-card__label">Acceso al sistema</div>
-            </div>
-            <div class="stat-card stat-card--small">
-                <div class="stat-card__number">150+</div>
-                <div class="stat-card__label">Reservas activas</div>
-            </div>
-            <div class="stat-card stat-card--small">
-                <div class="stat-card__number">12</div>
-                <div class="stat-card__label">Laboratorios</div>
-            </div>
-        </aside>
+        <!-- Right sidebar removed for centered layout -->
 
     </div>
 
@@ -870,13 +812,7 @@
             });
         });
 
-        // Sidebar pill click interaction
-        document.querySelectorAll('.sidebar-pill').forEach(pill => {
-            pill.addEventListener('click', function() {
-                document.querySelectorAll('.sidebar-pill').forEach(p => p.classList.remove('sidebar-pill--active'));
-                this.classList.add('sidebar-pill--active');
-            });
-        });
+        // Sidebar pill click removed
 
         // Parallax effect on floating objects
         document.addEventListener('mousemove', (e) => {
